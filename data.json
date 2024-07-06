@@ -1,0 +1,39 @@
+{
+  "DssStatus" : {
+    "INT_AVL" : 1,
+    "PR_AVL"  : 1,
+    "TV_AVL"  : 1,
+    "UpTime"  : 23,
+    "PairingCount" : 35
+  },
+
+  "SeatStatus" : [
+    {
+      "seat" : "1A",
+      "DSS" : 1,
+      "PR_AVL" : 0,
+      "TV_SVC": 1,
+      "VLS": 1,
+      "KID" : 0,
+      "UIState" : "Pairing"
+    },
+    {
+      "seat" : "3J",
+      "DSS"  : 0,
+      "PR_AVL" : 1,
+      "TV_SVC" : 0,
+      "VLS" : 1,
+      "KID" : 0,
+      "UIState" : "TV"
+    },
+    {
+      "seat" : "42F",
+      "DSS" : 0,
+      "PR_AVL" : 1,
+      "TV_SVC": 0,
+      "VLS": 0,
+      "KID" : 1,
+      "UIState" : "Map"
+    }
+  ]
+}

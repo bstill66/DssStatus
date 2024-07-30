@@ -16,23 +16,38 @@ namespace DssApi {
     class SeatStatus {
     public:
         typedef enum {
-            DSS = 7,
-            PR_AVL = 6,
-            TV_SVC = 5,
-            VLS = 4
+            DSS_COMM_LOSS = 7,
+            TM_SYNC       = 6,
+            TV_SVC_AVL = 5,
+            VLS = 4,
+            PA = 3,
+            PCTL_LOCK = 2
         } Availability;
 
+
         typedef enum {
-            KID = 7
+            LOGIN_AVL   = 7,
+            LOGD_IN     = 6,
+            KID         = 5
         } Mode;
 
         typedef enum {
-            MAP_VIEW
+            WELCOME   = 0,
+            HOME      = 1,
+            PAIRING   = 2,
+            WATCH_TV  = 3,
+            STREAM_VIDEO = 4,
+            STREAM_AUDIO = 5,
+            PLAY_GAME    = 6,
+            MAP          = 7,
+            SETTINGS     = 8,
+            UNSPECIFIED  = 15
         } UIState;
 
         SeatStatus();
         SeatStatus(const std::string& seatId);
 
+        void clear();
         void setSeatId(const std::string& id);
         std::string getSeatId() const;
         uint16_t getRow() const;
@@ -61,6 +76,8 @@ namespace DssApi {
         uint8_t     mode;
     };
 
+    void to_json(JSon& j, const SeatStatus& s) ;
+    void from_json(const JSon& j, SeatStatus& s);
 } // DssApi
 
 #endif //DSS_IF_SEATSTATUS_H

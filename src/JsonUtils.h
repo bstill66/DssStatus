@@ -17,19 +17,23 @@ namespace DssApi {
 
         typedef nlohmann::json JSon;
 
-        bool buildFromJson(const JSon &obj, DssStatus &status);
+        //bool buildFromJson(const JSon &obj, DssStatus &status);
+        //bool toJson(const DssStatus& dss,JSon& obj);
 
-        bool fromJson(const JSon &obj, ServerStatus &status);
-        void toJson(const ServerStatus& server,JSon& json);
+        //bool fromJson(const JSon &obj, ServerStatus &status);
+        //void toJson(const ServerStatus& server,JSon& json);
         bool buildSeatsFromJson(const JSon &obj, DssStatus& status);
 
-        void fromJson(const JSon& json,SeatStatus& seat);
-        void toJson(const SeatStatus& seat,JSon& json);
+        //void fromJson(const JSon& json,SeatStatus& seat);
+        //void toJson(const SeatStatus& seat,JSon& json);
+        bool getBoolean(const JSon &jsonObj, const char *key);
+
+
 
         template <class T>
-        std::string toJson(const T& v) {
+        std::string toJsonString(const T& v) {
             JSon  obj;
-            toJson(v,obj);
+            to_json(obj,v);
             return to_string(obj);
         }
 

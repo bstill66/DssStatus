@@ -13,21 +13,27 @@ using namespace nlohmann;
 using namespace JsonUtils;
 
 DssStatus::DssStatus()
-: seats()
+: server(),seats()
 {}
 
 DssStatus::DssStatus(const std::string &str) {
 
     JSon obj = json::parse(str);
-    JsonUtils::buildFromJson(obj,*this);
+    from_json(obj,*this);
+    //JsonUtils::buildFromJson(obj,*this);
 }
 
 DssStatus::DssStatus(std::istream &infile) {
     JSon obj = json::parse(infile);
 
-    JsonUtils::buildFromJson(obj,*this);
+    from_json(obj,*this);
+    //JsonUtils::buildFromJson(obj,*this);
 }
 
+void DssStatus::clear() {
+    server.clear();
+    seats.clear();
+}
 #if 0
 void DssStatus::randomize(int numSeats) {
     dssStatus.randomize();
@@ -50,7 +56,7 @@ DssStatus::asBase64() const {
 
 
     size_t size = 0;
-    size += dssStatus.append(buffer);
+    size += server.append(buffer);
 
     for (auto item: seats) {
         size += item.write(buffer);
@@ -67,7 +73,7 @@ DssStatus::asBase64() const {
 bool DssStatus::operator==(const DssStatus &rhs) const {
     size_t tmp1 = seats.size(), tmp2 = rhs.seats.size();
 
-    return (dssStatus == rhs.dssStatus) &&
+    return (server == rhs.server) &&
            (seats == rhs.seats);
 }
 
@@ -78,7 +84,7 @@ bool DssStatus::fromBase64(const std::string &b64) {
         size_t binSize = buffer->size();
         std::vector<uint8_t>::const_iterator iter = buffer->begin();
 
-        if (dssStatus.loadBinary(iter) != buffer->end()) {
+        if (server.loadBinary(iter) != buffer->end()) {
             seats.clear();
             while (iter != buffer->end()) {
                 SeatStatus tmp;
@@ -94,4 +100,43 @@ bool DssStatus::fromBase64(const std::string &b64) {
     return false;
 }
 
+void DssStatus::add(const SeatStatus& seat) {
+    seats.push_back(seat);
+}
+
+void DssStatus::set(const DssApi::ServerStatus &s) {
+    server = s;
+}
+
+const DssStatus::SeatCollection& DssStatus::getSeatStatus() const {
+    return seats;
+}
+
+const ServerStatus& DssStatus::getServerStatus() const {
+    return server;
+}
+
+
+
+    void to_json(JSon& j, const DssStatus& s) {
+        using namespace DssApi;
+
+        JSon   jsrvr;
+        to_json(jsrvr,s.getServerStatus());
+
+        JSon    jSeats;
+        to_json(jSeats,s.getSeatStatus());
+
+        j = {{"Server", jsrvr},
+             {"Seats",  jSeats}};
+
+    }
+
+    void from_json(const JSon& j, DssStatus& s) {
+        using namespace JsonUtils;
+
+        s.clear();
+
+
+    }
 }

@@ -11,28 +11,8 @@
 
 using namespace DssApi;
 
-static std::default_random_engine generator;
-static std::uniform_int_distribution<uint8_t> rowDistro(1,63);
-static std::uniform_int_distribution<uint8_t> colDistro('A','P');
-static std::uniform_int_distribution<uint8_t> binary(0,1);
-static std::uniform_int_distribution<uint8_t> uiState(0,15);
+SeatStatus loadRandomSeat();
 
-static SeatStatus loadRandomSeat() {
-    uint16_t row = rowDistro(generator);
-    uint16_t col = colDistro(generator);
-    auto seatId = std::format("{:d}{:c}",row,col);
-
-    SeatStatus   tmp(seatId);
-    tmp.setStatus(DssApi::SeatStatus::DSS,binary(generator));
-    tmp.setStatus(DssApi::SeatStatus::TV_SVC,binary(generator));
-    tmp.setStatus(DssApi::SeatStatus::PR_AVL,binary(generator));
-    tmp.setStatus(DssApi::SeatStatus::VLS,binary(generator));
-
-    tmp.setMode(DssApi::SeatStatus::Mode::KID,binary(generator));
-    tmp.setUIState(static_cast<DssApi::SeatStatus::UIState>(uiState(generator)));
-
-    return tmp;
-}
 TEST(SeatStatus, Constructors) {
 
     EXPECT_NO_THROW({SeatStatus tmp("1A");});
@@ -82,9 +62,9 @@ TEST(SeatStatus,Equality) {
     SeatStatus  tmp3("24A");
 
     ASSERT_EQ(tmp,tmp2);
-    tmp.setStatus(DssApi::SeatStatus::DSS,1);
+    tmp.setStatus(DssApi::SeatStatus::DSS_COMM_LOSS, 1);
     ASSERT_NE(tmp,tmp2);
-    tmp.setStatus(DssApi::SeatStatus::DSS,0);
+    tmp.setStatus(DssApi::SeatStatus::DSS_COMM_LOSS, 0);
     ASSERT_EQ(tmp,tmp2);
 
     ASSERT_NE(tmp,tmp3);
@@ -92,10 +72,10 @@ TEST(SeatStatus,Equality) {
 
 TEST(SeatStatus,ReadWriteBinary) {
     SeatStatus tmp("23A");
-    tmp.setStatus(DssApi::SeatStatus::PR_AVL,1);
-    tmp.setStatus(DssApi::SeatStatus::TV_SVC,1);
+
+    tmp.setStatus(DssApi::SeatStatus::TV_SVC_AVL, 1);
     tmp.setMode(DssApi::SeatStatus::Mode::KID,1);
-    tmp.setUIState(DssApi::SeatStatus::MAP_VIEW);
+    tmp.setUIState(DssApi::SeatStatus::MAP);
 
     ByteBuffer buffer;
     tmp.write(buffer);
@@ -118,14 +98,14 @@ TEST(SeatStatus,ReadWriteJSON) {
         ASSERT_NE(tmp,tmp2);
 
         JSon   obj;
-        toJson(tmp,obj);
+        to_json(obj,tmp);
 
         auto ans = to_string(obj);
 
         fromJson(obj,tmp2);
         ASSERT_EQ(tmp,tmp2);
 
-        auto str = toJson(tmp2);
+        auto str = toJsonString(tmp2);
         SeatStatus tmp3;
         ASSERT_NE(tmp,tmp3);
         fromJson(str,tmp3);

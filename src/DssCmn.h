@@ -8,9 +8,13 @@
 #include <stdint.h>
 #include <stdexcept>
 #include <vector>
+#include "nlohmann/json.hpp"
+
+
 
 namespace DssApi {
     typedef std::vector<uint8_t> ByteBuffer;
+    typedef nlohmann::json JSon;
 
 #define BIT_MASK(numbits)  ((1<<(numbits))-1)
 #define BIT_MASK_AT(numbits, off)   (BIT_MASK(numbits) << (off))

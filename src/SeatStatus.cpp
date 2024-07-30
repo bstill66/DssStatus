@@ -8,6 +8,7 @@
 
 #include "base64pp/base64pp.h"
 #include "SeatStatus.h"
+#include "JsonUtils.h"
 
 static const std::regex SEAT_ID_RE("(\\d{1,2})([A-P]{1})");
 
@@ -15,14 +16,19 @@ namespace DssApi {
 
 SeatStatus::SeatStatus()
         : seatRow(0), seatCol(0), status(0), mode(0)
-{
-
-}
+{}
 
 SeatStatus::SeatStatus(const std::string &seatId)
         : seatRow(0), seatCol(0), status(0), mode(0)
 {
     setSeatId(seatId);
+}
+
+void SeatStatus::clear() {
+    seatRow = 0;
+    seatCol = 0;
+    status  = 0;
+    mode    = 0;
 }
 
 void SeatStatus::setSeatId(const std::string& id) {
@@ -131,5 +137,41 @@ bool SeatStatus::operator==(const SeatStatus &rhs) const {
 }
 
 
+    void to_json(JSon& j, const SeatStatus& s) {
+        using namespace DssApi;
 
+        j = {{"SeatId",       s.getSeatId()},
+             {"DSS_COMM_LOSS",s.getStatus(SeatStatus::DSS_COMM_LOSS)},
+             {"TM_SYNC",      s.getStatus(SeatStatus::TM_SYNC)},
+             {"TV_SVC_AVL",   s.getStatus(SeatStatus::TV_SVC_AVL)},
+             {"VLS",          s.getStatus(SeatStatus::VLS)},
+             {"PA",           s.getStatus(SeatStatus::PA)},
+             {"PCTL_LOCK",    s.getStatus(SeatStatus::PCTL_LOCK)},
+
+             {"KID",          s.getMode(SeatStatus::KID)},
+             {"LOGIN_AVL",    s.getMode(SeatStatus::LOGIN_AVL)},
+             {"LOGD_IN",      s.getMode(SeatStatus::LOGD_IN)},
+             {"UI",           s.getUIState()}};
+
+    }
+
+    void from_json(const JSon& j, SeatStatus& s) {
+        using namespace JsonUtils;
+
+        s.clear();
+
+        s.setSeatId(j["SeatId"]);
+        s.setStatus(SeatStatus::DSS_COMM_LOSS,getBoolean(j,"DSS_COMM_LOSS"));
+        s.setStatus(SeatStatus::TM_SYNC,getBoolean(j,"TM_SYNC"));
+        s.setStatus(SeatStatus::TV_SVC_AVL,getBoolean(j,"TV_SVC_AVL"));
+        s.setStatus(SeatStatus::VLS,getBoolean(j,"VLS"));
+        s.setStatus(SeatStatus::PA,getBoolean(j,"PA"));
+        s.setStatus(SeatStatus::PCTL_LOCK,getBoolean(j,"PCTL_LOCK"));
+
+        s.setMode(SeatStatus::LOGIN_AVL,getBoolean(j,"LOGIN_AVL"));
+        s.setMode(SeatStatus::LOGD_IN,getBoolean(j,"LOGD_IN"));
+        s.setMode(SeatStatus::KID,getBoolean(j,"KID"));
+        s.setUIState(static_cast<SeatStatus::UIState>(j["UI"]));
+
+    }
 } // DssApi

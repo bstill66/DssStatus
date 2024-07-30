@@ -21,6 +21,7 @@ namespace DssApi {
 class DssStatus {
 
 public:
+    typedef std::list <SeatStatus> SeatCollection;
 
     DssStatus();
 
@@ -28,10 +29,17 @@ public:
 
     DssStatus(std::istream &infile);
 
+    void clear();
     std::string asBase64() const;
 
-    bool fromBase64(const std::string &b64);
+    void set(const ServerStatus& s);
+    const ServerStatus& getServerStatus() const;
 
+
+    void add(const SeatStatus& s);
+    const SeatCollection& getSeatStatus() const;
+
+    bool fromBase64(const std::string &b64);
     void randomize(int numSeats);
 
     bool operator==(const DssStatus &rhs) const;
@@ -39,12 +47,15 @@ public:
     size_t numSeats() const { return seats.size();}
 
 protected:
-    typedef std::list <SeatStatus> SeatCollection;
+
 
 private:
-    ServerStatus             dssStatus;
+    ServerStatus             server;
     SeatCollection           seats;
 
 };
+
+    void to_json(JSon& j, const DssStatus& s) ;
+    void from_json(const JSon& j, DssStatus& s);
 }
 #endif //DSS_IF_XXX_H

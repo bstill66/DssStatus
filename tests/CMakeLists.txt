@@ -17,7 +17,7 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 function(BuildTest fname)
-    add_executable(${fname} ${fname}.cpp TestMain.cpp)
+    add_executable(${fname} TestMain.cpp ${fname}.cpp TestUtils.cpp )
     target_link_libraries(${fname} DssApi GTest::gtest_main)
 endfunction()
 
@@ -28,7 +28,8 @@ BuildTest(TestDssStatus)
 add_executable(TestAll TestMain.cpp
         TestSeatStatus.cpp
         TestServerStatus.cpp
-        TestDssStatus.cpp)
+        TestDssStatus.cpp
+        TestUtils.cpp)
 target_link_libraries(TestAll DssApi GTest::gtest_main)
 
 include(GoogleTest)

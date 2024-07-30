@@ -30,18 +30,18 @@ namespace DssApi {
 
 
 
-        template <class T>
+        template <typename T>
         std::string toJsonString(const T& v) {
             JSon  obj;
             to_json(obj,v);
             return to_string(obj);
         }
 
-        template <class T>
-        void fromJson(const std::string& str,T& tmp) {
+        template <typename T>
+        void fromJsonString(const std::string& str, T& tmp) {
             JSon obj = JSon::parse(str);
 
-            fromJson(obj,tmp);
+            from_json(obj, tmp);
 
         }
     }

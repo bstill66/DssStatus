@@ -11,7 +11,7 @@
 
 using namespace DssApi;
 
-SeatStatus loadRandomSeat();
+SeatStatus loadRandomSeat(std::string& id);
 
 TEST(SeatStatus, Constructors) {
 
@@ -71,20 +71,23 @@ TEST(SeatStatus,Equality) {
 }
 
 TEST(SeatStatus,ReadWriteBinary) {
-    SeatStatus tmp("23A");
+    std::string id;
+    SeatStatus tmp = loadRandomSeat(id);
 
     tmp.setStatus(DssApi::SeatStatus::TV_SVC_AVL, 1);
     tmp.setMode(DssApi::SeatStatus::Mode::KID,1);
     tmp.setUIState(DssApi::SeatStatus::MAP);
 
     ByteBuffer buffer;
-    tmp.write(buffer);
+    tmp.write(id,buffer);
 
     SeatStatus  tmp2;
+    std::string id2;
     ByteBuffer::const_iterator it = buffer.cbegin();
-    tmp2.loadBinary(it);
+    tmp2.read(it,id2);
 
     ASSERT_EQ(tmp,tmp2);
+    ASSERT_EQ(id,id2);
 }
 
 TEST(SeatStatus,ReadWriteJSON) {
@@ -92,7 +95,8 @@ TEST(SeatStatus,ReadWriteJSON) {
     using namespace std;
 
     for (int n=0;n<100;n++) {
-        SeatStatus tmp = loadRandomSeat();
+        std::string id;
+        SeatStatus tmp = loadRandomSeat(id);
         SeatStatus tmp2;
 
         ASSERT_NE(tmp,tmp2);
@@ -100,16 +104,19 @@ TEST(SeatStatus,ReadWriteJSON) {
         JSon   obj;
         to_json(obj,tmp);
 
-        auto ans = to_string(obj);
+        auto ans = toJsonString(tmp);
 
-        fromJson(obj,tmp2);
+        from_json(obj,tmp2);
         ASSERT_EQ(tmp,tmp2);
 
         auto str = toJsonString(tmp2);
         SeatStatus tmp3;
         ASSERT_NE(tmp,tmp3);
-        fromJson(str,tmp3);
-        ASSERT_EQ(tmp,tmp3);
+
+        // from a string
+        SeatStatus tmp4;
+        fromJsonString(str,tmp4);
+        ASSERT_EQ(tmp2,tmp4);
 
     }
 }

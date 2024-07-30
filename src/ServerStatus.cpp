@@ -17,7 +17,7 @@ ServerStatus::ServerStatus()
 }
 
 void ServerStatus::clear() {
-    size         = 0x84;
+    size         = 0x44;
     availability = 0;
     upTime       = 0;
     reserved     = 0;

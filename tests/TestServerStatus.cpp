@@ -80,12 +80,13 @@ TEST(ServerStatus,ReadriteJSON)
         from_json(obj,tmp2);
         ASSERT_EQ(tmp, tmp2);
 
-#if 0
-        auto str = tmp2);
+        string  str = toJsonString(tmp);
+
+
         ServerStatus tmp3;
         ASSERT_NE(tmp, tmp3);
-        fromJson(str, tmp3);
+        fromJsonString(str, tmp3);
         ASSERT_EQ(tmp, tmp3);
-#endif
+
     }
 }

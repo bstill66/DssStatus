@@ -20,14 +20,14 @@ DssStatus::DssStatus(const std::string &str) {
 
     JSon obj = json::parse(str);
     from_json(obj,*this);
-    //JsonUtils::buildFromJson(obj,*this);
+
 }
 
 DssStatus::DssStatus(std::istream &infile) {
     JSon obj = json::parse(infile);
 
     from_json(obj,*this);
-    //JsonUtils::buildFromJson(obj,*this);
+
 }
 
 void DssStatus::clear() {
@@ -59,7 +59,7 @@ DssStatus::asBase64() const {
     size += server.append(buffer);
 
     for (auto item: seats) {
-        size += item.write(buffer);
+        size += item.second.write(item.first,buffer);
     }
 
 
@@ -71,8 +71,6 @@ DssStatus::asBase64() const {
 }
 
 bool DssStatus::operator==(const DssStatus &rhs) const {
-    size_t tmp1 = seats.size(), tmp2 = rhs.seats.size();
-
     return (server == rhs.server) &&
            (seats == rhs.seats);
 }
@@ -81,15 +79,15 @@ bool DssStatus::fromBase64(const std::string &b64) {
 
     auto buffer = base64pp::decode(b64);
     if (buffer != std::nullopt) {
-        size_t binSize = buffer->size();
-        std::vector<uint8_t>::const_iterator iter = buffer->begin();
+        ByteBuffer::const_iterator iter = buffer->begin();
 
         if (server.loadBinary(iter) != buffer->end()) {
             seats.clear();
             while (iter != buffer->end()) {
                 SeatStatus tmp;
-                tmp.loadBinary(iter);
-                seats.push_back(tmp);
+                std::string id;
+                tmp.read(iter,id);
+                seats[id] = tmp;
             }
 
             return true;
@@ -100,8 +98,9 @@ bool DssStatus::fromBase64(const std::string &b64) {
     return false;
 }
 
-void DssStatus::add(const SeatStatus& seat) {
-    seats.push_back(seat);
+void DssStatus::add(const std::string& id,const SeatStatus& seat) {
+    seats[id] = seat;
+    seats[id].setSeatId(id);
 }
 
 void DssStatus::set(const DssApi::ServerStatus &s) {
@@ -136,6 +135,18 @@ const ServerStatus& DssStatus::getServerStatus() const {
         using namespace JsonUtils;
 
         s.clear();
+
+        ServerStatus  tmp;
+        from_json(j["Server"],tmp);
+        s.set(tmp);
+
+        DssStatus::SeatCollection seats;
+        from_json(j["Seats"],seats);
+
+        for (auto itm : seats) {
+            itm.second.setSeatId(itm.first);
+            s.add(itm.first,itm.second);
+        }
 
 
     }

@@ -6,7 +6,7 @@
 #define DSS_IF_DSSSTATUS_H
 
 #include <string>
-#include <list>
+#include <map>
 #include <memory>
 
 #include "DssCmn.h"
@@ -21,7 +21,7 @@ namespace DssApi {
 class DssStatus {
 
 public:
-    typedef std::list <SeatStatus> SeatCollection;
+    typedef std::map <std::string,SeatStatus> SeatCollection;
 
     DssStatus();
 
@@ -36,11 +36,11 @@ public:
     const ServerStatus& getServerStatus() const;
 
 
-    void add(const SeatStatus& s);
+    void add(const std::string& id,const SeatStatus& s);
     const SeatCollection& getSeatStatus() const;
 
     bool fromBase64(const std::string &b64);
-    void randomize(int numSeats);
+
 
     bool operator==(const DssStatus &rhs) const;
 

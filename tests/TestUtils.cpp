@@ -37,12 +37,12 @@ ServerStatus loadRandomStatus() {
 
 
 
-SeatStatus loadRandomSeat() {
+SeatStatus loadRandomSeat(std::string& id) {
     uint16_t row = rowDistro(generator);
     uint16_t col = colDistro(generator);
     auto seatId = std::format("{:d}{:c}",row,col);
 
-    SeatStatus   tmp(seatId);
+    SeatStatus   tmp;
     tmp.setStatus(DssApi::SeatStatus::DSS_COMM_LOSS, binary(generator));
     tmp.setStatus(DssApi::SeatStatus::TV_SVC_AVL, binary(generator));
     tmp.setStatus(DssApi::SeatStatus::VLS,binary(generator));
@@ -55,6 +55,7 @@ SeatStatus loadRandomSeat() {
     tmp.setMode(DssApi::SeatStatus::Mode::KID,binary(generator));
     tmp.setUIState(static_cast<DssApi::SeatStatus::UIState>(uiState(generator)));
 
+    id = seatId;
     return tmp;
 }
 
@@ -67,11 +68,12 @@ DssStatus loadRandomDss(int numSeats) {
     dss.set(loadRandomStatus());
 
     while (numSeats != 0) {
-        SeatStatus  seat = loadRandomSeat();
+        std::string id;
+        SeatStatus  seat = loadRandomSeat(id);
 
-        string id = seat.getSeatId();
         if (usedIds.contains(id) == false) {
-            dss.add(seat);
+            dss.add(id,seat);
+            usedIds.insert(id);
             numSeats -= 1;
         }
     }

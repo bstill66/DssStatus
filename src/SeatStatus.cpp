@@ -31,6 +31,30 @@ void SeatStatus::clear() {
     mode    = 0;
 }
 
+void SeatStatus::convertId(const std::string& id,uint8_t& row,uint8_t& col) {
+    using namespace std;
+
+    bool valid = false;
+
+    smatch   matches;
+    if (regex_match(id,matches,SEAT_ID_RE) ) {
+        std::string tmpRow = matches[1];
+        std::string tmpCol = matches[2];
+
+        uint8_t   rowInt = atoi(tmpRow.c_str());
+        uint8_t   colInt = tmpCol.at(0) - 'A';
+
+        if ((rowInt > 0) && (rowInt < 64) && (colInt <= 15)) {
+            row = rowInt;
+            col = colInt;
+            valid = true;
+        }
+    }
+
+    if (!valid)  {
+        throw std::runtime_error("Invalid Seat ID: " + id);
+    }
+}
 void SeatStatus::setSeatId(const std::string& id) {
     using namespace std;
 
@@ -69,6 +93,10 @@ std::string
 SeatStatus::getSeatId() const {
     return std::format("{}{:1}",getRow(),getColumn());
 }
+void SeatStatus::convertId(uint8_t row, uint8_t col, std::string &id) {
+    id = std::format("{:1d}{:1c}",row,static_cast<char>('A'+col));
+
+}
 
 uint8_t SeatStatus::getStatus(SeatStatus::Availability st) const {
     return getField(status,1,st);
@@ -95,11 +123,14 @@ SeatStatus::getUIState() const {
     return static_cast<UIState>(getField(mode,4,0));
 }
 
-size_t SeatStatus::write(ByteBuffer &buf) const {
+size_t SeatStatus::write(const std::string& id,ByteBuffer &buf) const {
     size_t start = buf.size();
 
-    buf.push_back(seatRow);
-    buf.push_back(seatCol);
+    uint8_t  row = 0,col = 0;
+    convertId(id,row,col);
+    buf.push_back(row);
+    buf.push_back(col);
+
     buf.push_back(status);
     buf.push_back(mode);
 
@@ -119,10 +150,13 @@ void SeatStatus::randomize() {
 #endif
 
 std::vector<uint8_t>::const_iterator&
-SeatStatus::loadBinary(std::vector<uint8_t>::const_iterator& it) {
+SeatStatus::read(ByteBuffer::const_iterator& it,std::string& id) {
 
-    seatRow = *it++;
-    seatCol = *it++;
+    uint8_t  row,col;
+    row     = *it++;
+    col     = *it++;
+    convertId(row,col,id);
+
     status  = *it++;
     mode    = *it++;
 
@@ -140,7 +174,7 @@ bool SeatStatus::operator==(const SeatStatus &rhs) const {
     void to_json(JSon& j, const SeatStatus& s) {
         using namespace DssApi;
 
-        j = {{"SeatId",       s.getSeatId()},
+        j = {//{"SeatId",       s.getSeatId()},
              {"DSS_COMM_LOSS",s.getStatus(SeatStatus::DSS_COMM_LOSS)},
              {"TM_SYNC",      s.getStatus(SeatStatus::TM_SYNC)},
              {"TV_SVC_AVL",   s.getStatus(SeatStatus::TV_SVC_AVL)},
@@ -160,7 +194,7 @@ bool SeatStatus::operator==(const SeatStatus &rhs) const {
 
         s.clear();
 
-        s.setSeatId(j["SeatId"]);
+        //s.setSeatId(j["SeatId"]);
         s.setStatus(SeatStatus::DSS_COMM_LOSS,getBoolean(j,"DSS_COMM_LOSS"));
         s.setStatus(SeatStatus::TM_SYNC,getBoolean(j,"TM_SYNC"));
         s.setStatus(SeatStatus::TV_SVC_AVL,getBoolean(j,"TV_SVC_AVL"));

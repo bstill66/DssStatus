@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include <random>
 #include <format>
+#include <fstream>
 
 #include "DssCmn.h"
 #include "DssStatus.h"
@@ -17,7 +18,7 @@ static std::default_random_engine generator;
 static std::uniform_int_distribution<int> seatCount(0,330);
 
 DssStatus loadRandomDss(int);
-SeatStatus loadRandomSeat();
+SeatStatus loadRandomSeat(std::string&);
 
 TEST(DssStatus,Constructor) {
     using namespace JsonUtils;
@@ -26,22 +27,22 @@ TEST(DssStatus,Constructor) {
 
     ASSERT_EQ(tmp1.numSeats(),0);
 
-    DssStatus dss = loadRandomDss(20);
-    ASSERT_EQ(dss.numSeats(),20);
+    for (int n=0;n<20;n++) {
+        int r = seatCount(generator);
 
-    JSon obj;
-    to_json(obj,dss);
+        DssStatus dss = loadRandomDss(r);
+        ASSERT_EQ(dss.numSeats(), r);
 
-    string str = to_string(obj);
+        JSon obj;
+        to_json(obj, dss);
 
-    DssStatus  dss2(str);
-    DssStatus  dss3(str);
-    ASSERT_EQ(dss2,dss3);
+        string str = to_string(obj);
 
-    JSon obj2;
-    to_json(obj2,dss2);
-    string str2 = to_string(obj2);
-    ASSERT_EQ(dss,dss2);
+        DssStatus dss2(str);
+        DssStatus dss3(str);
+        ASSERT_EQ(dss2, dss3);
+    }
+
 }
 
 TEST(DssStatus,FileConstructor) {
@@ -51,7 +52,6 @@ TEST(DssStatus,FileConstructor) {
 
     string jsonStr = toJsonString(tmp);
 
-    cout << jsonStr;
 }
 
 TEST(DssStatus,Equality) {
@@ -65,6 +65,24 @@ TEST(DssStatus,Equality) {
     ASSERT_NE(tmp,tmp3);
     ASSERT_NE(tmp2,tmp3);
 
-    tmp2.add(loadRandomSeat());
+    std::string id;
+    tmp2.add(id,loadRandomSeat(id));
     ASSERT_NE(tmp,tmp2);
+}
+
+TEST(DssStatus,FileIO) {
+    using namespace DssApi::JsonUtils;
+
+    for (int n = 0;n<20;n++) {
+        DssStatus tmp = loadRandomDss(3);
+        std::string str = toJsonString(tmp);
+        std::istringstream   inf(str);
+
+        DssStatus  dssFile(inf);
+
+        std::string a1 = toJsonString(tmp);
+        std::string a2 = toJsonString(dssFile);
+        ASSERT_EQ(a1,a2);
+        ASSERT_EQ(dssFile,tmp);
+    }
 }

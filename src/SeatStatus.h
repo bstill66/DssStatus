@@ -48,6 +48,8 @@ namespace DssApi {
         SeatStatus(const std::string& seatId);
 
         void clear();
+
+
         void setSeatId(const std::string& id);
         std::string getSeatId() const;
         uint16_t getRow() const;
@@ -62,13 +64,16 @@ namespace DssApi {
         UIState  getUIState() const;
         void     setUIState(UIState s);
 
-        ByteBuffer::const_iterator& loadBinary(ByteBuffer::const_iterator& it) ;
+        ByteBuffer::const_iterator& read(ByteBuffer::const_iterator& it, std::string& id) ;
 
         void randomize();
-        size_t  write(ByteBuffer& buf) const;
+        size_t  write(const std::string& id,ByteBuffer& buf) const;
 
         bool operator==(const SeatStatus& rhs) const;
         bool operator!=(const SeatStatus& rhs) const {return !(*this == rhs);}
+    protected:
+        static void convertId(const std::string& id,uint8_t& row,uint8_t& col);
+        static void convertId(uint8_t row, uint8_t col, std::string& id);
     private:
         uint8_t     seatRow;
         uint8_t     seatCol;

@@ -8,6 +8,7 @@
 
 #include "SeatStatus.h"
 #include "JsonUtils.h"
+#include "SeatID.h"
 
 using namespace DssApi;
 
@@ -30,29 +31,38 @@ TEST(SeatStatus, GetSetMethods) {
 }
 
 TEST(SeatStatus, SeatIdentifiers) {
-    SeatStatus   tmp;
+
+    SeatID   invalid;
+    SeatID   firstClass("4B");
+    SeatID   comfPlus("14D");
+    SeatID   main("22F");
+
+
+
+
+    // TODO: Rework this section
 
     // Attempt a few BAD examples
-    EXPECT_THROW({tmp.setSeatId("0A");},std::runtime_error);
-    EXPECT_THROW({tmp.setSeatId("A1");},std::runtime_error);
-    EXPECT_THROW({tmp.setSeatId("99A");},std::runtime_error);
-    EXPECT_THROW({tmp.setSeatId("32Q");},std::runtime_error);
+    EXPECT_THROW({SeatID a("0A");},std::runtime_error);
+    EXPECT_THROW({SeatID b("A1");},std::runtime_error);
+    EXPECT_THROW({SeatID c("99A");},std::runtime_error);
+    EXPECT_THROW({SeatID d("32Q");},std::runtime_error);
 
     // Try the extremes and one in the middle
-    ASSERT_NO_THROW({tmp.setSeatId("1A");});
-    ASSERT_EQ(1,tmp.getRow());
-    ASSERT_EQ('A',tmp.getColumn());
-    ASSERT_EQ("1A",tmp.getSeatId());
+    SeatID aa("1A");
+    ASSERT_EQ(1,aa.getRow());
+    ASSERT_EQ('A',aa.getColumn());
+    ASSERT_EQ(static_cast<std::string>(aa),"1A");
 
-    ASSERT_NO_THROW({tmp.setSeatId("13F");});
-    ASSERT_EQ(13,tmp.getRow());
-    ASSERT_EQ('F',tmp.getColumn());
-    ASSERT_EQ("13F",tmp.getSeatId());
+    SeatID bb("13F");
+    ASSERT_EQ(13,bb.getRow());
+    ASSERT_EQ('F',bb.getColumn());
+    ASSERT_EQ(static_cast<std::string>(bb),"13F");
 
-    ASSERT_NO_THROW({tmp.setSeatId("63P");});
-    ASSERT_EQ(63,tmp.getRow());
-    ASSERT_EQ('P',tmp.getColumn());
-    ASSERT_EQ("63P",tmp.getSeatId());
+    SeatID cc("63P");
+    ASSERT_EQ(63,cc.getRow());
+    ASSERT_EQ('P',cc.getColumn());
+    ASSERT_EQ(static_cast<std::string>(cc),"63P");
 
 }
 

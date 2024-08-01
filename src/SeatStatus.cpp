@@ -85,7 +85,7 @@ uint16_t SeatStatus::getRow() const {
 }
 
 char SeatStatus::getColumn() const {
-   uint8_t  col = getField(seatCol,4,3);
+   uint8_t  col = getField(seatCol,4,4);
    return 'A'+ col;
 }
 
@@ -107,11 +107,11 @@ void SeatStatus::setStatus(SeatStatus::Availability st, int val) {
 }
 
 uint8_t SeatStatus::getMode(Mode m) const {
-    return getField(mode,1,7);
+    return getField(mode,1,m);
 }
 
 uint8_t SeatStatus::setMode(Mode m,uint8_t val) {
-    return setField(mode,1,7,val);
+    return setField(mode,1,m,val);
 }
 
 void SeatStatus::setUIState(DssApi::SeatStatus::UIState s) {
@@ -129,7 +129,7 @@ size_t SeatStatus::write(const std::string& id,ByteBuffer &buf) const {
     uint8_t  row = 0,col = 0;
     convertId(id,row,col);
     buf.push_back(row);
-    buf.push_back(col);
+    buf.push_back(col<<4);
 
     buf.push_back(status);
     buf.push_back(mode);
@@ -155,7 +155,7 @@ SeatStatus::read(ByteBuffer::const_iterator& it,std::string& id) {
     uint8_t  row,col;
     row     = *it++;
     col     = *it++;
-    convertId(row,col,id);
+    convertId(row,col>>4,id);
 
     status  = *it++;
     mode    = *it++;

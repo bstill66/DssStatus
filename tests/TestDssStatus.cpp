@@ -86,3 +86,42 @@ TEST(DssStatus,FileIO) {
         ASSERT_EQ(dssFile,tmp);
     }
 }
+
+TEST(DssStatus,ICD) {
+    using namespace DssApi::JsonUtils;
+
+    DssStatus  example;
+
+    // Setup Server status
+    ServerStatus  srvr;
+    srvr.setAvailability(ServerStatus::FLT_OPN,true);
+    srvr.setAvailability(ServerStatus::INT_AVL,true);
+    srvr.setAvailability(ServerStatus::LPNS_AVL,true);
+    srvr.setUpTime(52);
+
+    example.set(srvr);
+
+
+    // Seat 25B
+    SeatStatus  B25;
+    B25.setStatus(SeatStatus::DSS_COMM_LOSS,true);
+    B25.setStatus(SeatStatus::TM_SYNC,true);
+    B25.setUIState(SeatStatus::MAP);
+
+    example.add("25B",B25);
+
+    // Seat 43F
+    SeatStatus F43;
+    F43.setStatus(SeatStatus::VLS,true);
+    F43.setStatus(SeatStatus::PCTL_LOCK,true);
+    F43.setMode(SeatStatus::LOGIN_AVL,true);
+    F43.setMode(SeatStatus::KID,true);
+    F43.setUIState(SeatStatus::PAIRING);
+
+    example.add("43F",F43);
+
+    // ICD: 44C80034 1910C007 2B5014A2
+    std::string b64 = example.asBase64();
+
+    ASSERT_EQ(b64,"RMgANBkQwAcrUBSi");
+}

@@ -19,7 +19,9 @@ add_library(DssApi  STATIC
             SeatStatus.h   SeatStatus.cpp
             ServerStatus.h ServerStatus.cpp
             DssStatus.h    DssStatus.cpp
-            JsonUtils.h    JsonUtils.cpp)
+            JsonUtils.h    JsonUtils.cpp
+        SeatID.cpp
+        SeatID.h)
 
 target_link_libraries(DssApi PUBLIC nlohmann_json base64pp)
 target_include_directories(DssApi PUBLIC ${CMAKE_CURRENT_LIST_DIR})

@@ -25,9 +25,31 @@ TEST(SeatStatus, Constructors) {
 }
 
 TEST(SeatStatus, GetSetMethods) {
+
+    SeatStatus::Availability  AVL[] = {SeatStatus::DSS_COMM_LOSS,SeatStatus::TV_SVC_AVL,SeatStatus::TM_SYNC,
+                                       SeatStatus::PA,SeatStatus::VLS,SeatStatus::PCTL_LOCK};
+    const int N = sizeof(AVL)/sizeof(AVL[0]);
+
     SeatStatus   tmp;
 
+    // should all be 0 after constructions
+    for (int n=0;n < N;n++) {
+        ASSERT_EQ(tmp.getStatus(AVL[n]),0);
+    }
 
+    for (int x=0;x<N;x++) {
+        tmp.setStatus(AVL[x],true);
+        for (int y=0;y<N;y++) {
+            if (x == y) {
+                ASSERT_EQ(tmp.getStatus(AVL[y]),true);
+            } else {
+                ASSERT_EQ(tmp.getStatus(AVL[y]),false);
+            }
+        }
+        tmp.setStatus(AVL[x],false);
+        ASSERT_EQ(tmp.getStatus(AVL[x]),false);
+
+    }
 }
 
 TEST(SeatStatus, SeatIdentifiers) {
@@ -37,10 +59,6 @@ TEST(SeatStatus, SeatIdentifiers) {
     SeatID   comfPlus("14D");
     SeatID   main("22F");
 
-
-
-
-    // TODO: Rework this section
 
     // Attempt a few BAD examples
     EXPECT_THROW({SeatID a("0A");},std::runtime_error);

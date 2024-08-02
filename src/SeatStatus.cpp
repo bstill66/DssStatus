@@ -157,6 +157,8 @@ SeatStatus::read(ByteBuffer::const_iterator& it,std::string& id) {
     col     = *it++;
     convertId(row,col>>4,id);
 
+    seatRow = row;
+    seatCol = col;
     status  = *it++;
     mode    = *it++;
 

@@ -123,5 +123,11 @@ TEST(DssStatus,ICD) {
     // ICD: 44C80034 1910C007 2B5014A2
     std::string b64 = example.asBase64();
 
+    // Hand validated
     ASSERT_EQ(b64,"RMgANBkQwAcrUBSi");
+
+    // Make sure we can get it back
+    DssStatus  result;
+    result.fromBase64(b64);
+    ASSERT_EQ(result,example);
 }

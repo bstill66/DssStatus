@@ -32,6 +32,7 @@ ServerStatus loadRandomStatus() {
     tmp.setAvailability(DssApi::ServerStatus::FLT_OPN,binary(generator));
     tmp.setAvailability(DssApi::ServerStatus::LPNS_AVL,binary(generator));
 
+
     return tmp;
 }
 
@@ -49,6 +50,7 @@ SeatStatus loadRandomSeat(std::string& id) {
     tmp.setStatus(DssApi::SeatStatus::TM_SYNC,binary(generator));
     tmp.setStatus(DssApi::SeatStatus::PCTL_LOCK,binary(generator));
     tmp.setStatus(DssApi::SeatStatus::PA,binary(generator));
+    tmp.setStatus(SeatStatus::STOWD,binary(generator));
 
     tmp.setMode(DssApi::SeatStatus::Mode::LOGIN_AVL,binary(generator));
     tmp.setMode(DssApi::SeatStatus::Mode::LOGD_IN,binary(generator));

@@ -5,8 +5,17 @@
 
 class PgmOptions {
 public:
+    typedef enum {
+        NO_ACTION,
+        ENCODE_STRING,
+        DECODE_STRING,
+    } Mode;
+
     PgmOptions() {random=-1;}
+    Mode   mode;
+
     bool        encodeFlag;
+    std::string inputString;
     std::string infile;
     std::string outfile;
     int         random;
@@ -22,15 +31,24 @@ static PgmOptions parseArgs(int argc,char *argv[]) {
     ArgumentParser parser(argv[0]);
 
     parser.add_argument("-e").flag();
-    parser.add_argument("-i").nargs(1).required();
-    parser.add_argument("-o").nargs(1);
-    parser.add_argument("-R").nargs(1);
-
+    parser.add_argument("-i").nargs(1);
+    parser.add_argument("-I").nargs(1);
+    parser.add_argument("-O").nargs(1);
 
     parser.parse_args(argc,argv);
 
     PgmOptions  opt;
-    opt.encodeFlag = parser.get<bool>("-e");
+    opt.mode = PgmOptions::NO_ACTION;
+
+    if (parser.present("-e")) {
+        opt.inputString = parser.get<std::string>("-e");
+        opt.mode = PgmOptions::ENCODE_STRING;
+    }
+    else if (parser.present("-d")) {
+        opt.inputString = parser.get<std::string>("-d");
+        opt.mode = PgmOptions::DECODE_STRING;
+    }
+
     opt.outfile    = parser.get<std::string>("-o");
     opt.infile     = parser.get<std::string>("-i");
     auto tmp       = parser.get<std::string>("-R");
@@ -64,7 +82,8 @@ int main(int argc,char *argv[]) {
   if (params.random != -1) {
       dssStatus = new DssStatus();
 
-      dssStatus->randomize(params.random);
+
+    //ssStatus->randomize(params.random);
 
       std::string ascii = dssStatus->asBase64();
       std::cout << "Randomized length w/ " << params.random << " seats = " << ascii.length() << std::endl;

@@ -33,6 +33,11 @@ namespace DssApi {
         return field;
     }
 
+    class InvalidSeatID  : public std::runtime_error {
+    public:
+        InvalidSeatID(const std::string& msg = "") : std::runtime_error(msg) {}
+    };
+
     class ParseException : std::runtime_error {
     public:
         ParseException(const std::string& msg = "");

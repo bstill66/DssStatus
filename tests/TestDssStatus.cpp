@@ -101,7 +101,6 @@ TEST(DssStatus,ICD) {
 
     example.set(srvr);
 
-
     // Seat 25B
     SeatStatus  B25;
     B25.setStatus(SeatStatus::DSS_COMM_LOSS,true);
@@ -117,14 +116,15 @@ TEST(DssStatus,ICD) {
     F43.setMode(SeatStatus::LOGIN_AVL,true);
     F43.setMode(SeatStatus::KID,true);
     F43.setUIState(SeatStatus::PAIRING);
+    F43.setStatus(SeatStatus::STOWD,true);
 
     example.add("43F",F43);
 
-    // ICD: 44C80034 1910C007 2B5014A2
+    // ICD: 44C80034 1910C007 2B3014A2
     std::string b64 = example.asBase64();
 
     // Hand validated
-    ASSERT_EQ(b64,"RMgANBkQwAcrUBSi");
+    ASSERT_EQ(b64,"RMgANBkQwAcrUBai");
 
     // Make sure we can get it back
     DssStatus  result;

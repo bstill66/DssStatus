@@ -2,107 +2,40 @@
 // Created by bstil on 7/1/2024.
 //
 
-#include <regex>
-#include <random>
+
 #include <format>
 
 #include "base64pp/base64pp.h"
 #include "SeatStatus.h"
 #include "JsonUtils.h"
 
-static const std::regex SEAT_ID_RE("(\\d{1,2})([A-P]{1})");
 
 namespace DssApi {
-
-SeatStatus::SeatStatus()
-        : seatRow(0), seatCol(0), status(0), mode(0)
-{}
-
-SeatStatus::SeatStatus(const std::string &seatId)
-        : seatRow(0), seatCol(0), status(0), mode(0)
+    /**
+     * Default constructor
+     */
+    SeatStatus::SeatStatus()
+    :  status(0), mode(0)
 {
-    setSeatId(seatId);
+    clear();
 }
 
 void SeatStatus::clear() {
-    seatRow = 0;
-    seatCol = 0;
     status  = 0;
     mode    = 0;
+
+    // set UI state to UNSPECIFIED
+    setUIState(UNSPECIFIED);
 }
 
-void SeatStatus::convertId(const std::string& id,uint8_t& row,uint8_t& col) {
-    using namespace std;
-
-    bool valid = false;
-
-    smatch   matches;
-    if (regex_match(id,matches,SEAT_ID_RE) ) {
-        std::string tmpRow = matches[1];
-        std::string tmpCol = matches[2];
-
-        uint8_t   rowInt = atoi(tmpRow.c_str());
-        uint8_t   colInt = tmpCol.at(0) - 'A';
-
-        if ((rowInt > 0) && (rowInt < 64) && (colInt <= 15)) {
-            row = rowInt;
-            col = colInt;
-            valid = true;
-        }
-    }
-
-    if (!valid)  {
-        throw std::runtime_error("Invalid Seat ID: " + id);
-    }
-}
-void SeatStatus::setSeatId(const std::string& id) {
-    using namespace std;
-
-    bool valid = false;
-
-    smatch   matches;
-    if (regex_match(id,matches,SEAT_ID_RE) ) {
-        std::string row = matches[1];
-        std::string col = matches[2];
-
-        uint8_t   rowInt = atoi(row.c_str());
-        uint8_t   colInt = col.at(0) - 'A';
-
-        if ((rowInt > 0) && (rowInt < 64) && (colInt <= 15)) {
-            setField(seatRow,6,0,rowInt);
-            setField(seatCol,4,3,colInt);
-            valid = true;
-        }
-    }
-
-    if (!valid)  {
-        throw std::runtime_error("Invalid Seat ID: " + id);
-    }
-}
-
-uint16_t SeatStatus::getRow() const {
-   return getField(seatRow,6,0);
-}
-
-char SeatStatus::getColumn() const {
-   uint8_t  col = getField(seatCol,4,4);
-   return 'A'+ col;
-}
-
-std::string
-SeatStatus::getSeatId() const {
-    return std::format("{}{:1}",getRow(),getColumn());
-}
-void SeatStatus::convertId(uint8_t row, uint8_t col, std::string &id) {
-    id = std::format("{:1d}{:1c}",row,static_cast<char>('A'+col));
-
-}
 
 uint8_t SeatStatus::getStatus(SeatStatus::Availability st) const {
+    // pull the binary value from the status field based on the availability setting
     return getField(status,1,st);
 }
 
 void SeatStatus::setStatus(SeatStatus::Availability st, int val) {
+    // update the status field to the specified value
     status = setField(status,1,st,val);
 }
 
@@ -123,13 +56,8 @@ SeatStatus::getUIState() const {
     return static_cast<UIState>(getField(mode,4,0));
 }
 
-size_t SeatStatus::write(const std::string& id,ByteBuffer &buf) const {
+size_t SeatStatus::write(ByteBuffer &buf) const {
     size_t start = buf.size();
-
-    uint8_t  row = 0,col = 0;
-    convertId(id,row,col);
-    buf.push_back(row);
-    buf.push_back(col<<4);
 
     buf.push_back(status);
     buf.push_back(mode);
@@ -137,28 +65,10 @@ size_t SeatStatus::write(const std::string& id,ByteBuffer &buf) const {
     return buf.size()-start;
 }
 
-#if 0
-void SeatStatus::randomize() {
-    static std::default_random_engine generator;
-    static std::uniform_int_distribution<int> distribution(0,255);
 
-    seatRow = distribution(generator);
-    seatCol = distribution(generator);
-    status  = distribution(generator);
-    mode    = distribution(generator);
-}
-#endif
+ByteBuffer::const_iterator&
+SeatStatus::read(ByteBuffer::const_iterator& it) {
 
-std::vector<uint8_t>::const_iterator&
-SeatStatus::read(ByteBuffer::const_iterator& it,std::string& id) {
-
-    uint8_t  row,col;
-    row     = *it++;
-    col     = *it++;
-    convertId(row,col>>4,id);
-
-    seatRow = row;
-    seatCol = col;
     status  = *it++;
     mode    = *it++;
 
@@ -166,9 +76,8 @@ SeatStatus::read(ByteBuffer::const_iterator& it,std::string& id) {
 }
 
 bool SeatStatus::operator==(const SeatStatus &rhs) const {
-    return (seatRow      == rhs.seatRow) &&
-           (seatCol     == rhs.seatCol) &&
-           (status      == rhs.status) &&
+    // Standard equality checks
+    return (status      == rhs.status) &&
            (mode        == rhs.mode);
 }
 
@@ -176,13 +85,14 @@ bool SeatStatus::operator==(const SeatStatus &rhs) const {
     void to_json(JSon& j, const SeatStatus& s) {
         using namespace DssApi;
 
-        j = {//{"SeatId",       s.getSeatId()},
+        j = {
              {"DSS_COMM_LOSS",s.getStatus(SeatStatus::DSS_COMM_LOSS)},
              {"TM_SYNC",      s.getStatus(SeatStatus::TM_SYNC)},
              {"TV_SVC_AVL",   s.getStatus(SeatStatus::TV_SVC_AVL)},
              {"VLS",          s.getStatus(SeatStatus::VLS)},
              {"PA",           s.getStatus(SeatStatus::PA)},
              {"PCTL_LOCK",    s.getStatus(SeatStatus::PCTL_LOCK)},
+             {"STOWD",        s.getStatus(SeatStatus::STOWD)},
 
              {"KID",          s.getMode(SeatStatus::KID)},
              {"LOGIN_AVL",    s.getMode(SeatStatus::LOGIN_AVL)},
@@ -196,17 +106,21 @@ bool SeatStatus::operator==(const SeatStatus &rhs) const {
 
         s.clear();
 
-        //s.setSeatId(j["SeatId"]);
+        // Retrieve all the status objects
         s.setStatus(SeatStatus::DSS_COMM_LOSS,getBoolean(j,"DSS_COMM_LOSS"));
         s.setStatus(SeatStatus::TM_SYNC,getBoolean(j,"TM_SYNC"));
         s.setStatus(SeatStatus::TV_SVC_AVL,getBoolean(j,"TV_SVC_AVL"));
         s.setStatus(SeatStatus::VLS,getBoolean(j,"VLS"));
         s.setStatus(SeatStatus::PA,getBoolean(j,"PA"));
         s.setStatus(SeatStatus::PCTL_LOCK,getBoolean(j,"PCTL_LOCK"));
+        s.setStatus(SeatStatus::STOWD,getBoolean(j,"STOWD"));
 
+        // and the mode objects...
         s.setMode(SeatStatus::LOGIN_AVL,getBoolean(j,"LOGIN_AVL"));
         s.setMode(SeatStatus::LOGD_IN,getBoolean(j,"LOGD_IN"));
         s.setMode(SeatStatus::KID,getBoolean(j,"KID"));
+
+        // and the UI state
         s.setUIState(static_cast<SeatStatus::UIState>(j["UI"]));
 
     }

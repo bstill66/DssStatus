@@ -14,20 +14,28 @@ using namespace DssApi;
 
 SeatStatus loadRandomSeat(std::string& id);
 
+static const
+std::vector<SeatStatus::Availability>  AVL = {{
+    SeatStatus::DSS_COMM_LOSS,SeatStatus::TV_SVC_AVL,SeatStatus::TM_SYNC,
+    SeatStatus::PA,SeatStatus::VLS,SeatStatus::PCTL_LOCK,
+    SeatStatus::STOWD}};
+
 TEST(SeatStatus, Constructors) {
 
-    EXPECT_NO_THROW({SeatStatus tmp("1A");});
-    EXPECT_NO_THROW({SeatStatus tmp("63P");});
-    EXPECT_NO_THROW({SeatStatus tmp("27F");});
+    SeatStatus tmp;
 
-    EXPECT_THROW({SeatStatus  tmp("A1");},std::runtime_error);
-    EXPECT_THROW({SeatStatus  tmp("32FF");},std::runtime_error);
+    for (auto item: AVL) {
+        ASSERT_EQ(tmp.getStatus(item),0);
+    }
+
+    //ASSERT_EQ(tmp.getMode(),0);
+    ASSERT_EQ(tmp.getUIState(),SeatStatus::UNSPECIFIED);
 }
+
 
 TEST(SeatStatus, GetSetMethods) {
 
-    SeatStatus::Availability  AVL[] = {SeatStatus::DSS_COMM_LOSS,SeatStatus::TV_SVC_AVL,SeatStatus::TM_SYNC,
-                                       SeatStatus::PA,SeatStatus::VLS,SeatStatus::PCTL_LOCK};
+
     const int N = sizeof(AVL)/sizeof(AVL[0]);
 
     SeatStatus   tmp;
@@ -84,6 +92,8 @@ TEST(SeatStatus, SeatIdentifiers) {
 
 }
 
+#if 0
+// TODO remove seatIDs
 TEST(SeatStatus,Equality) {
     SeatStatus  tmp("1A");
     SeatStatus  tmp2("1A");
@@ -97,6 +107,7 @@ TEST(SeatStatus,Equality) {
 
     ASSERT_NE(tmp,tmp3);
 }
+#endif
 
 TEST(SeatStatus,ReadWriteBinary) {
     std::string id;
@@ -107,15 +118,15 @@ TEST(SeatStatus,ReadWriteBinary) {
     tmp.setUIState(DssApi::SeatStatus::MAP);
 
     ByteBuffer buffer;
-    tmp.write(id,buffer);
+    tmp.write(buffer);
 
     SeatStatus  tmp2;
     std::string id2;
     ByteBuffer::const_iterator it = buffer.cbegin();
-    tmp2.read(it,id2);
+    tmp2.read(it);
 
     ASSERT_EQ(tmp,tmp2);
-    ASSERT_EQ(id,id2);
+//    ASSERT_EQ(id,id2);
 }
 
 TEST(SeatStatus,ReadWriteJSON) {

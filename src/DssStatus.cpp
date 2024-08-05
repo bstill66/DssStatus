@@ -77,6 +77,8 @@ bool DssStatus::operator==(const DssStatus &rhs) const {
 
 bool DssStatus::fromBase64(const std::string &b64) {
 
+    bool valid = false;
+
     auto buffer = base64pp::decode(b64);
     if (buffer != std::nullopt) {
         ByteBuffer::const_iterator iter = buffer->begin();
@@ -87,15 +89,16 @@ bool DssStatus::fromBase64(const std::string &b64) {
                 SeatStatus tmp;
                 std::string id;
                 tmp.read(iter,id);
+                tmp.setSeatId(id);
                 seats[id] = tmp;
             }
 
-            return true;
+            valid = true;
         }
 
     }
 
-    return false;
+    return valid;
 }
 
 void DssStatus::add(const std::string& id,const SeatStatus& seat) {

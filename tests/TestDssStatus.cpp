@@ -86,3 +86,16 @@ TEST(DssStatus,FileIO) {
         ASSERT_EQ(dssFile,tmp);
     }
 }
+
+TEST(DssStatus,Base64) {
+    DssStatus tmp = loadRandomDss(2);
+
+    std::string b64 = tmp.asBase64();
+
+    DssStatus tmp2;
+    tmp2.fromBase64(b64);
+
+    ASSERT_EQ(tmp,tmp2);
+
+    tmp2.fromBase64("Invalid Base64 Format!!!");
+}

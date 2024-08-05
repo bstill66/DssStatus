@@ -174,8 +174,7 @@ bool SeatStatus::operator==(const SeatStatus &rhs) const {
     void to_json(JSon& j, const SeatStatus& s) {
         using namespace DssApi;
 
-        j = {//{"SeatId",       s.getSeatId()},
-             {"DSS_COMM_LOSS",s.getStatus(SeatStatus::DSS_COMM_LOSS)},
+        j = {{"DSS_COMM_LOSS",s.getStatus(SeatStatus::DSS_COMM_LOSS)},
              {"TM_SYNC",      s.getStatus(SeatStatus::TM_SYNC)},
              {"TV_SVC_AVL",   s.getStatus(SeatStatus::TV_SVC_AVL)},
              {"VLS",          s.getStatus(SeatStatus::VLS)},

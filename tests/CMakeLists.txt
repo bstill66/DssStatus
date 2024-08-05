@@ -21,6 +21,7 @@ function(BuildTest fname)
     target_link_libraries(${fname} DssApi GTest::gtest_main)
 endfunction()
 
+BuildTest(TestSeatID)
 BuildTest(TestSeatStatus)
 BuildTest(TestServerStatus)
 BuildTest(TestDssStatus)
@@ -29,7 +30,8 @@ add_executable(TestAll TestMain.cpp
         TestSeatStatus.cpp
         TestServerStatus.cpp
         TestDssStatus.cpp
-        TestUtils.cpp)
+        TestUtils.cpp
+        TestSeatID.cpp)
 target_link_libraries(TestAll DssApi GTest::gtest_main)
 
 include(GoogleTest)

@@ -52,16 +52,19 @@ std::string
 DssStatus::asBase64() const {
 
 
-    std::vector<uint8_t> buffer;
+    ByteBuffer buffer;
 
 
     size_t size = 0;
     size += server.append(buffer);
 
     for (auto item: seats) {
-        size += item.second.write(item.first,buffer);
-    }
+        // write the SeatID
+        size += item.first.write(buffer);
 
+        // write the seat status
+        size += item.second.write(buffer);
+    }
 
     auto const base64_str = base64pp::encode({begin(buffer), end(buffer)});
     size_t binSize = buffer.size();
@@ -77,8 +80,6 @@ bool DssStatus::operator==(const DssStatus &rhs) const {
 
 bool DssStatus::fromBase64(const std::string &b64) {
 
-    bool valid = false;
-
     auto buffer = base64pp::decode(b64);
     if (buffer != std::nullopt) {
         ByteBuffer::const_iterator iter = buffer->begin();
@@ -86,24 +87,26 @@ bool DssStatus::fromBase64(const std::string &b64) {
         if (server.loadBinary(iter) != buffer->end()) {
             seats.clear();
             while (iter != buffer->end()) {
+                SeatID  id;
+                id.read(iter);
+
                 SeatStatus tmp;
-                std::string id;
-                tmp.read(iter,id);
-                tmp.setSeatId(id);
+
+                tmp.read(iter);
                 seats[id] = tmp;
             }
 
-            valid = true;
+            return true;
         }
 
     }
 
-    return valid;
+    return false;
 }
 
-void DssStatus::add(const std::string& id,const SeatStatus& seat) {
+void DssStatus::add(const SeatID& id,const SeatStatus& seat) {
     seats[id] = seat;
-    seats[id].setSeatId(id);
+    //seats[id].setSeatId(id);
 }
 
 void DssStatus::set(const DssApi::ServerStatus &s) {
@@ -147,7 +150,7 @@ const ServerStatus& DssStatus::getServerStatus() const {
         from_json(j["Seats"],seats);
 
         for (auto itm : seats) {
-            itm.second.setSeatId(itm.first);
+            //itm.second.setSeatId(itm.first);
             s.add(itm.first,itm.second);
         }
 

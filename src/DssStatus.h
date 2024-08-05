@@ -12,6 +12,7 @@
 #include "DssCmn.h"
 #include "ServerStatus.h"
 #include "SeatStatus.h"
+#include "SeatID.h"
 
 
 
@@ -21,7 +22,7 @@ namespace DssApi {
 class DssStatus {
 
 public:
-    typedef std::map <std::string,SeatStatus> SeatCollection;
+    typedef std::map <SeatID,SeatStatus> SeatCollection;
 
     DssStatus();
 
@@ -36,7 +37,7 @@ public:
     const ServerStatus& getServerStatus() const;
 
 
-    void add(const std::string& id,const SeatStatus& s);
+    void add(const SeatID& id,const SeatStatus& s);
     const SeatCollection& getSeatStatus() const;
 
     bool fromBase64(const std::string &b64);

@@ -87,15 +87,47 @@ TEST(DssStatus,FileIO) {
     }
 }
 
-TEST(DssStatus,Base64) {
-    DssStatus tmp = loadRandomDss(2);
+TEST(DssStatus,ICD) {
+    using namespace DssApi::JsonUtils;
 
-    std::string b64 = tmp.asBase64();
+    DssStatus  example;
 
-    DssStatus tmp2;
-    tmp2.fromBase64(b64);
+    // Setup Server status
+    ServerStatus  srvr;
+    srvr.setAvailability(ServerStatus::FLT_OPN,true);
+    srvr.setAvailability(ServerStatus::INT_AVL,true);
+    srvr.setAvailability(ServerStatus::LPNS_AVL,true);
+    srvr.setUpTime(52);
 
-    ASSERT_EQ(tmp,tmp2);
+    example.set(srvr);
 
-    tmp2.fromBase64("Invalid Base64 Format!!!");
+    // Seat 25B
+    SeatStatus  B25;
+    B25.setStatus(SeatStatus::DSS_COMM_LOSS,true);
+    B25.setStatus(SeatStatus::TM_SYNC,true);
+    B25.setUIState(SeatStatus::MAP);
+
+    example.add("25B",B25);
+
+    // Seat 43F
+    SeatStatus F43;
+    F43.setStatus(SeatStatus::VLS,true);
+    F43.setStatus(SeatStatus::PCTL_LOCK,true);
+    F43.setMode(SeatStatus::LOGIN_AVL,true);
+    F43.setMode(SeatStatus::KID,true);
+    F43.setUIState(SeatStatus::PAIRING);
+    F43.setStatus(SeatStatus::STOWD,true);
+
+    example.add("43F",F43);
+
+    // ICD: 44C80034 1910C007 2B3014A2
+    std::string b64 = example.asBase64();
+
+    // Hand validated
+    ASSERT_EQ(b64,"RMgANBkQwAcrUBai");
+
+    // Make sure we can get it back
+    DssStatus  result;
+    result.fromBase64(b64);
+    ASSERT_EQ(result,example);
 }

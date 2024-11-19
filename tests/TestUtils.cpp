@@ -37,7 +37,6 @@ ServerStatus loadRandomStatus() {
 }
 
 
-
 SeatStatus loadRandomSeat(std::string& id) {
     uint16_t row = rowDistro(generator);
     uint16_t col = colDistro(generator);

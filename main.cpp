@@ -33,7 +33,8 @@ static PgmOptions parseArgs(int argc,char *argv[]) {
     parser.add_argument("-e").flag();
     parser.add_argument("-i").nargs(1);
     parser.add_argument("-I").nargs(1);
-    parser.add_argument("-O").nargs(1);
+    parser.add_argument("-o").nargs(1);
+    parser.add_argument("-R").nargs(1);
 
     parser.parse_args(argc,argv);
 

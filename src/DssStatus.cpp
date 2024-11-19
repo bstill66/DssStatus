@@ -142,18 +142,22 @@ const ServerStatus& DssStatus::getServerStatus() const {
 
         s.clear();
 
-        ServerStatus  tmp;
-        from_json(j["Server"],tmp);
-        s.set(tmp);
 
-        DssStatus::SeatCollection seats;
-        from_json(j["Seats"],seats);
-
-        for (auto itm : seats) {
-            //itm.second.setSeatId(itm.first);
-            s.add(itm.first,itm.second);
+        if (j.contains("Server")) {
+            ServerStatus  tmp;
+            from_json(j["Server"], tmp);
+            s.set(tmp);
         }
 
+        if (j.contains("Seats")) {
+            DssStatus::SeatCollection seats;
+            from_json(j["Seats"], seats);
 
+            for (auto itm: seats) {
+                //itm.second.setSeatId(itm.first);
+                s.add(itm.first, itm.second);
+            }
+
+        }
     }
 }

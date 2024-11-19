@@ -1,0 +1,39 @@
+{
+  "Server" : {
+    "UpTime" : 34,
+    "INT_AVL" :  1,
+    "PR_AVL" :  1,
+    "TV_AVL" : 0,
+    "LPNS_AVL" : 1,
+    "FLT_OPN" : 0
+  },
+
+  "Seats"  : {
+    "1A": {
+      "DSS_COMM_LOSS": 0,
+      "TM_SYNC": 1,
+      "TV_SVC_AVL": 0,
+      "VLS": 1,
+      "PA": 0,
+      "PCTL_LOCK": 1,
+      "STOWD": 0,
+      "KID": 0,
+      "LOGIN_AVL": 1,
+      "LOGD_IN": 1,
+      "UI": 4
+    },
+    "23F": {
+      "DSS_COMM_LOSS": 1,
+      "TM_SYNC": 0,
+      "TV_SVC_AVL": 1,
+      "VLS": 0,
+      "PA": 1,
+      "PCTL_LOCK": 0,
+      "STOWD": 1,
+      "KID": 1,
+      "LOGIN_AVL": 0,
+      "LOGD_IN": 0,
+      "UI": 7
+    }
+  }
+}

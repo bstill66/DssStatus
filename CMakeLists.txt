@@ -19,3 +19,8 @@ FetchContent_MakeAvailable(argparse)
 add_executable(dss_if main.cpp)
 target_link_libraries(dss_if PRIVATE argparse  DssApi)
 
+add_executable(fromJson jsonToDss.cpp)
+target_link_libraries(fromJson PRIVATE argparse  DssApi)
+
+add_executable(toJson DssToJson.cpp)
+target_link_libraries(toJson PRIVATE argparse  DssApi)

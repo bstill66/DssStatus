@@ -148,16 +148,8 @@ int main(int argc,char *argv[]) {
                         });
     }
 
+    std::cerr << "Starting server on port " << port << std::endl;
     svr.listen("0.0.0.0", port);
-
-    std::ifstream   infile(ifname);
-
-    if (!infile.good()) {
-        std::cerr << "Unable to open " << ifname << std::endl;
-        return 1;
-    }
-
-
 
     return 0;
 }

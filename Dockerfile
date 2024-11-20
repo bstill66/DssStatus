@@ -13,6 +13,7 @@ WORKDIR /build
 RUN make -j 4
 RUN /build/tests/TestAll
 
+ENTRYPOINT ["/build/DssServer","--port", "8080","-r","25","/build/DssServer"]
 EXPOSE 8080
 
-CMD [/build/dss_if -p 8080]
+

@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.27)
 project(DSS_IF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+
 
 add_subdirectory(src)
 add_subdirectory(tests)
@@ -30,5 +30,5 @@ target_link_libraries(fromJson PRIVATE argparse  DssApi)
 add_executable(toJson DssToJson.cpp)
 target_link_libraries(toJson PRIVATE argparse  DssApi)
 
-#add_executable(DssServer dssServer.cpp)
-#target_link_libraries(DssServer PRIVATE argparse DssApi httplib)
+add_executable(DssServer dssServer.cpp)
+target_link_libraries(DssServer PRIVATE argparse DssApi httplib)

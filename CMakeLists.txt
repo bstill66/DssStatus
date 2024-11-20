@@ -21,8 +21,7 @@ FetchContent_Declare(
          GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git)
 FetchContent_MakeAvailable(httplib)
 
-add_executable(dss_if main.cpp
-        dssServer.cpp)
+add_executable(dss_if main.cpp)
 target_link_libraries(dss_if PRIVATE argparse  DssApi)
 
 add_executable(fromJson jsonToDss.cpp)

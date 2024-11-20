@@ -11,5 +11,8 @@ RUN git clone https://github.com/bstill66/DssStatus.git
 RUN cmake -B /build -S /DssStatus
 WORKDIR /build
 RUN make -j 4
+RUN /build/tests/TestAll
 
 EXPOSE 8080
+
+CMD [/build/dss_if -p 8080]

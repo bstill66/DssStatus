@@ -31,5 +31,5 @@ target_link_libraries(fromJson PRIVATE argparse  DssApi)
 add_executable(toJson DssToJson.cpp)
 target_link_libraries(toJson PRIVATE argparse  DssApi)
 
-add_executable(DssServer dssServer.cpp)
-target_link_libraries(DssServer PRIVATE argparse DssApi httplib)
+#add_executable(DssServer dssServer.cpp)
+#target_link_libraries(DssServer PRIVATE argparse DssApi httplib)

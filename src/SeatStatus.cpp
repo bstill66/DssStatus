@@ -2,9 +2,6 @@
 // Created by bstil on 7/1/2024.
 //
 
-
-#include <format>
-
 #include "base64pp/base64pp.h"
 #include "SeatStatus.h"
 #include "JsonUtils.h"

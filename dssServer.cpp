@@ -11,6 +11,10 @@
 
 using namespace DssApi;
 
+static const char *END_PT = "/qoe/snapshot";
+static const char *CONTENT_TYPE = "text/plain";
+
+
 static argparse::ArgumentParser& parseArgs(int argc,char *argv[]) {
     using namespace argparse;
     using namespace std;
@@ -26,10 +30,18 @@ static argparse::ArgumentParser& parseArgs(int argc,char *argv[]) {
             .nargs(1)
             .default_value(20)
             .scan<'i',int>();
+    parser.add_argument("-u","--user")
+            .default_value("QoE")
+            .help("User for Authorization");
+    parser.add_argument("--password")
+          .default_value("XTul9tWnQddekft")
+          .help("User Password for Authorization");
+    parser.add_argument("--url")
+          .default_value("/qoe/snapshot")
+          .help("URL Endpoint for service");
 
     parser.add_argument("inpFile")
-            .nargs(1)
-            .required()
+            .default_value("")
             .help("Input file (JSON format)");
 
     parser.parse_args(argc,argv);
@@ -122,6 +134,16 @@ DssStatus loadRandomSeats(int numSeats) {
     return dss;
 }
 
+static bool authorized(const std::pair<std::string,std::string>& authKey,const httplib::Request &req) {
+
+    auto auth = req.get_header_value(authKey.first);
+
+    std::cerr << "Authorizaiton = " << authKey.first << " " << authKey.second << std::endl;
+
+    return (authKey.second == auth);
+
+}
+
 int main(int argc,char *argv[]) {
 
     using namespace DssApi;
@@ -133,19 +155,43 @@ int main(int argc,char *argv[]) {
     int port = params.get<int>("--port");
     int rnd  = params.get<int>("--random");
 
+    auto authKey = httplib::make_basic_authentication_header(params.get<std::string>("--user"),
+                                                             params.get<std::string>("--password"),
+                                                             false);
+
+    //std::cerr << "Auth: " << authKey.first << " : " << authKey.second << std::endl;
+
     // HTTP
     httplib::Server svr;
 
     if (rnd > 0) {
-        svr.Get("/dss",[&rnd](const httplib::Request &, httplib::Response &res) {
-                   DssStatus  tmp = loadRandomSeats(rnd);
-                   std::string bin = tmp.asBase64();
-                   res.set_content(bin, "text/plain");
+        svr.Get(END_PT,[&rnd,&authKey](const httplib::Request &req, httplib::Response &res) {
+                   std::cerr << "Handling request from " << req.remote_addr << std::endl;
+                   if (authorized(authKey,req)) {
+                       DssStatus tmp = loadRandomSeats(rnd);
+                       std::string bin = tmp.asBase64();
+                       res.set_content(bin, CONTENT_TYPE);
+                       res.status = 200;
+                   } else {
+                       res.set_content("Not authorized","text/plain");
+                       res.status = 403;
+                   }
                 });
     } else {
-        svr.Get("/dss", [&ifname](const httplib::Request &, httplib::Response &res) {
-                        res.set_content(readData(ifname), "text/plain");
-                        });
+        if (ifname.length() == 0) {
+            std::cerr << "Must specify filename" << std::endl;
+            return 1;
+        }
+        svr.Get(END_PT, [&ifname,&authKey](const httplib::Request & req, httplib::Response &res) {
+                        std::cerr << "Handling request from " << req.remote_addr << std::endl;
+                        if (authorized(authKey,req)) {
+                            res.set_content(readData(ifname), CONTENT_TYPE);
+                            res.status = 200;
+                        } else {
+                            res.set_content("Not authorized","text/plain");
+                            res.status = 403;
+                        }
+                });
     }
 
     std::cerr << "Starting server on port " << port << std::endl;

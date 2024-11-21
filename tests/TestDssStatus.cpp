@@ -66,7 +66,8 @@ TEST(DssStatus,Equality) {
     ASSERT_NE(tmp2,tmp3);
 
     std::string id;
-    tmp2.add(id,loadRandomSeat(id));
+    SeatStatus temp = loadRandomSeat(id);
+    tmp2.add(id,temp);
     ASSERT_NE(tmp,tmp2);
 }
 

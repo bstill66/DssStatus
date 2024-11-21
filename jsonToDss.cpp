@@ -7,23 +7,6 @@
 #include <fstream>
 #include "DssStatus.h"
 
-class PgmOptions {
-public:
-    typedef enum {
-        NO_ACTION,
-        ENCODE_STRING,
-        DECODE_STRING,
-    } Mode;
-
-    PgmOptions() {random=-1;}
-    Mode   mode;
-
-    bool        encodeFlag;
-    std::string inputString;
-    std::string infile;
-    std::string outfile;
-    int         random;
-};
 
 
 
@@ -36,7 +19,7 @@ static argparse::ArgumentParser& parseArgs(int argc,char *argv[]) {
 
     parser.add_argument("-o","--output")
           .nargs(1)
-          .default_value("dss.bin");
+          .default_value("dss.b64");
 
     parser.add_argument("inpFile")
             .nargs(1)
@@ -77,6 +60,7 @@ int main(int argc,char *argv[]) {
 
         std::string bin = dssInfo.asBase64();
 
+        std::cout << bin << std::endl;
         outfile << bin;
 
     } catch (const nlohmann::detail::parse_error& e) {

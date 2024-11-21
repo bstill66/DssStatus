@@ -31,10 +31,10 @@ static argparse::ArgumentParser& parseArgs(int argc,char *argv[]) {
             .default_value(20)
             .scan<'i',int>();
     parser.add_argument("-u","--user")
-            .default_value("QoE")
+            .default_value("")
             .help("User for Authorization");
     parser.add_argument("--password")
-          .default_value("XTul9tWnQddekft")
+          .default_value("")
           .help("User Password for Authorization");
     parser.add_argument("--url")
           .default_value("/qoe/snapshot")
@@ -138,9 +138,9 @@ static bool authorized(const std::pair<std::string,std::string>& authKey,const h
 
     auto auth = req.get_header_value(authKey.first);
 
-    std::cerr << "Authorizaiton = " << authKey.first << " " << authKey.second << std::endl;
+    //std::cerr << "Authorizaiton = " << authKey.first << " " << authKey.second << std::endl;
 
-    return (authKey.second == auth);
+    return (authKey.second == auth) ;
 
 }
 
@@ -160,14 +160,15 @@ int main(int argc,char *argv[]) {
                                                              false);
 
     //std::cerr << "Auth: " << authKey.first << " : " << authKey.second << std::endl;
+    bool noAuth = (params.get<std::string>("--user").length() == 0);
 
     // HTTP
     httplib::Server svr;
 
     if (rnd > 0) {
-        svr.Get(END_PT,[&rnd,&authKey](const httplib::Request &req, httplib::Response &res) {
+        svr.Get(END_PT,[&](const httplib::Request &req, httplib::Response &res) {
                    std::cerr << "Handling request from " << req.remote_addr << std::endl;
-                   if (authorized(authKey,req)) {
+                   if (noAuth || authorized(authKey,req)) {
                        DssStatus tmp = loadRandomSeats(rnd);
                        std::string bin = tmp.asBase64();
                        res.set_content(bin, CONTENT_TYPE);
@@ -182,9 +183,9 @@ int main(int argc,char *argv[]) {
             std::cerr << "Must specify filename" << std::endl;
             return 1;
         }
-        svr.Get(END_PT, [&ifname,&authKey](const httplib::Request & req, httplib::Response &res) {
+        svr.Get(END_PT, [&](const httplib::Request & req, httplib::Response &res) {
                         std::cerr << "Handling request from " << req.remote_addr << std::endl;
-                        if (authorized(authKey,req)) {
+                        if (noAuth || authorized(authKey,req)) {
                             res.set_content(readData(ifname), CONTENT_TYPE);
                             res.status = 200;
                         } else {

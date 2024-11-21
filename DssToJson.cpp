@@ -8,24 +8,6 @@
 #include "DssStatus.h"
 #include "JsonUtils.h"
 
-class PgmOptions {
-public:
-    typedef enum {
-        NO_ACTION,
-        ENCODE_STRING,
-        DECODE_STRING,
-    } Mode;
-
-    PgmOptions() {random=-1;}
-    Mode   mode;
-
-    bool        encodeFlag;
-    std::string inputString;
-    std::string infile;
-    std::string outfile;
-    int         random;
-};
-
 
 
 
@@ -37,7 +19,7 @@ static argparse::ArgumentParser& parseArgs(int argc,char *argv[]) {
 
     parser.add_argument("-o","--output")
           .nargs(1)
-          .default_value("out.json");
+          .default_value("dss.json");
 
     parser.add_argument("inpFile")
             .nargs(1)
@@ -86,6 +68,7 @@ int main(int argc,char *argv[]) {
         JSon  obj;
         buffer = JsonUtils::toJsonString(dssInfo);
 
+        //std::cout << buffer << std::endl;
         outfile.write(buffer.c_str(),buffer.length());
 
     } catch (const nlohmann::detail::parse_error& e) {

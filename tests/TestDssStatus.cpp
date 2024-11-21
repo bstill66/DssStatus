@@ -65,9 +65,15 @@ TEST(DssStatus,Equality) {
     ASSERT_NE(tmp,tmp3);
     ASSERT_NE(tmp2,tmp3);
 
-    std::string id;
-    SeatStatus temp = loadRandomSeat(id);
-    tmp2.add(id,temp);
+    bool ok = false;
+    int count = -1;
+    while (count != tmp2.numSeats()) {
+        std::string id;
+        SeatStatus temp = loadRandomSeat(id);
+        count = tmp2.numSeats();
+        tmp2.add(id, temp);
+
+    }
     ASSERT_NE(tmp,tmp2);
 }
 

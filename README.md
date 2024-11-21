@@ -23,5 +23,10 @@ to suit integration and test needs. Among these are:
 
 To run the emulator, simply perform the following operation:
 ```
-docker run -t <tag> --name <name>  <optional parameters from above>
+docker run -t <tag> --name <name> -p<local port>:80 <optional parameters from above>
+```
+
+To verify proper operation, you can test it using `curl`, as follows:
+```
+curl --basic -u <user>:<password> localhost:<local port>/qoe/snapshot
 ```

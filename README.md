@@ -23,7 +23,7 @@ to suit integration and test needs. Among these are:
 
 To run the emulator, simply perform the following operation:
 ```
-docker run -t <tag> --name <name> -p<local port>:80 <optional parameters from above>
+docker run -p<local port>:80 -t <tag>  <optional parameters from above>
 ```
 
 To verify proper operation, you can test it using `curl`, as follows:
@@ -76,6 +76,9 @@ Optional arguments:
 --password     User Password for Authorization [nargs=0..1] [default: ]
 --url          URL Endpoint for service [nargs=0..1] [default: "/qoe/snapshot"]
 ```
+
+By using the -u and --password option, the server will require the specified user and password as part of a Basic Authentication process. The client
+accessing the API will need to provide the same credentials.
 #### fromJson
 This utility reads a JSON formatted file (based on the ICD) and generates the
 Base64 output. `./fromJson <input file>`.
